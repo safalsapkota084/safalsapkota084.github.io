@@ -17,7 +17,6 @@
       justify-content: center;
     }
 
-    /* LOADER */
     #loader {
       position: fixed;
       inset: 0;
@@ -27,7 +26,7 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      transition: opacity 0.8s ease;
     }
 
     #loader.hide {
@@ -67,7 +66,6 @@
       text-transform: uppercase;
     }
 
-    /* MAIN CONTENT */
     #main {
       position: fixed;
       inset: 0;
@@ -96,7 +94,6 @@
     .hero-name span {
       display: inline-block;
       transform: translateY(100%);
-      animation: none;
     }
 
     .hero-name span.animate {
@@ -115,7 +112,6 @@
       text-transform: uppercase;
       text-align: center;
       opacity: 0;
-      animation: none;
     }
 
     .hero-sub.animate {
@@ -129,7 +125,6 @@
       color: #222;
       text-align: center;
       opacity: 0;
-      animation: none;
     }
 
     .hero-langs.animate {
@@ -142,7 +137,6 @@
       background: #1e1e1e;
       margin-top: 3rem;
       opacity: 0;
-      animation: none;
     }
 
     .line.animate {
@@ -169,7 +163,6 @@
       to   { opacity: 1; }
     }
 
-    /* corner info */
     .corner {
       position: fixed;
       font-size: 10px;
@@ -189,7 +182,6 @@
 </head>
 <body>
 
-  <!-- LOADER -->
   <div id="loader">
     <div class="percent" id="percent">0</div>
     <div class="loading-bar-wrap">
@@ -198,7 +190,6 @@
     <div class="loading-label">Loading</div>
   </div>
 
-  <!-- MAIN -->
   <div id="main">
     <div class="hero-name">
       <span>Safal&nbsp;</span><span>Sapkota</span>
@@ -208,11 +199,10 @@
     <div class="line"></div>
   </div>
 
-  <!-- Corners -->
-  <div class="corner tl" id="c1">digitalthakali.com</div>
-  <div class="corner tr" id="c2">© 2026</div>
-  <div class="corner bl" id="c3">Based in Japan</div>
-  <div class="corner br" id="c4">Open to work</div>
+  <div class="corner tl">digitalthakali.com</div>
+  <div class="corner tr">© 2026</div>
+  <div class="corner bl">Based in Japan</div>
+  <div class="corner br">Open to work</div>
 
   <script>
     const percentEl = document.getElementById('percent');
@@ -222,16 +212,15 @@
     const corners = document.querySelectorAll('.corner');
 
     let current = 0;
-    const target = 100;
     const duration = 2200;
     const interval = 30;
     const steps = duration / interval;
-    const increment = target / steps;
+    const increment = 100 / steps;
 
     const timer = setInterval(() => {
       current += increment + (Math.random() * increment * 0.5);
-      if (current >= target) {
-        current = target;
+      if (current >= 100) {
+        current = 100;
         clearInterval(timer);
         setTimeout(reveal, 300);
       }
@@ -241,15 +230,12 @@
 
     function reveal() {
       loader.classList.add('hide');
-
       setTimeout(() => {
         main.classList.add('show');
-
         document.querySelectorAll('.hero-name span').forEach(s => s.classList.add('animate'));
         document.querySelector('.hero-sub').classList.add('animate');
         document.querySelector('.hero-langs').classList.add('animate');
         document.querySelector('.line').classList.add('animate');
-
         corners.forEach(c => c.classList.add('show'));
       }, 400);
     }
