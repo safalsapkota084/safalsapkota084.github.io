@@ -2,230 +2,1040 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Safal Sapkota</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safal | Portfolio</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-soft: #101018;
+      --card: rgba(255,255,255,0.06);
+      --text: #f5f7fb;
+      --muted: #a8b0c3;
+      --line: rgba(255,255,255,0.12);
+      --accent: #ffffff;
+      --glow: rgba(255,255,255,0.15);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      background: #080808;
-      font-family: 'Helvetica Neue', sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      position: relative;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 25%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05), transparent 20%),
+        linear-gradient(135deg, #08080c, #0d1017 45%, #090a0f 100%);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
     }
-    canvas {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
+
+    body.loaded {
+      overflow: auto;
     }
-    #loader {
-      position: absolute;
+
+    .loader {
+      position: fixed;
       inset: 0;
-      z-index: 10;
+      background: #05060a;
+      z-index: 9999;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 1s ease;
-    }
-    #loader.hide { opacity: 0; pointer-events: none; }
-    .pct {
-      font-size: clamp(5rem, 15vw, 10rem);
-      font-weight: 100;
-      color: #fff;
-      letter-spacing: -6px;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-    }
-    .bar-wrap {
-      width: 180px;
-      height: 1px;
-      background: #1a1a1a;
-      margin-top: 2rem;
-    }
-    .bar-fill {
-      height: 1px;
-      width: 0%;
-      background: #fff;
-      transition: width 0.04s linear;
-    }
-    .load-txt {
-      margin-top: 1rem;
-      font-size: 10px;
-      letter-spacing: 5px;
-      color: #2a2a2a;
-      text-transform: uppercase;
-    }
-    #main {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+
+    .loader.hidden {
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
     }
-    #main.show { opacity: 1; pointer-events: all; }
-    .name-wrap { overflow: hidden; line-height: 1; }
-    .name {
-      font-size: clamp(2.5rem, 8vw, 7rem);
-      font-weight: 100;
-      color: #fff;
-      letter-spacing: -3px;
-      transform: translateY(110%);
-      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .loader-ring {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .loader-ring::before,
+    .loader-ring::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .loader-ring::after {
+      inset: 10px;
+      border-top: 1px solid rgba(255,255,255,0.8);
+      border-right: 1px solid rgba(255,255,255,0.35);
+      border-bottom: 1px solid transparent;
+      border-left: 1px solid transparent;
+      animation: spin 1.1s linear infinite;
+    }
+
+    .loader-name {
+      font-size: 13px;
+      letter-spacing: 0.55em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.82);
+      margin-left: 0.55em;
+      animation: fadeBlink 2s ease-in-out infinite;
+    }
+
+    .loader-line {
+      width: 160px;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loader-line span {
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
+      animation: travel 1.6s ease-in-out infinite;
+    }
+
+    .grain,
+    .grid,
+    .glow-orb {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .grid {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 90%);
+      opacity: 0.32;
+    }
+
+    .grain {
+      opacity: 0.05;
+      background-image:
+        radial-gradient(circle at 20% 20%, #fff 0.6px, transparent 0.8px),
+        radial-gradient(circle at 80% 40%, #fff 0.6px, transparent 0.8px),
+        radial-gradient(circle at 30% 70%, #fff 0.7px, transparent 0.9px),
+        radial-gradient(circle at 60% 80%, #fff 0.55px, transparent 0.75px);
+      background-size: 160px 160px;
+      animation: drift 16s linear infinite;
+    }
+
+    .glow-orb::before,
+    .glow-orb::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.14;
+    }
+
+    .glow-orb::before {
+      top: -60px;
+      left: -80px;
+      background: rgba(255,255,255,0.18);
+      animation: floatA 9s ease-in-out infinite;
+    }
+
+    .glow-orb::after {
+      right: -120px;
+      bottom: 40px;
+      background: rgba(115, 132, 255, 0.16);
+      animation: floatB 11s ease-in-out infinite;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(10,10,15,0.45);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    section {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 110px 22px 60px;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 36px;
+      align-items: center;
+      padding-top: 130px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .reveal.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: #d8deee;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 20px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.04) inset;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.7);
+      animation: pulseDot 1.7s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(44px, 8vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    .hero h1 span {
+      display: block;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .hero p {
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 630px;
+      margin-bottom: 34px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 38px;
+    }
+
+    .btn {
+      padding: 14px 22px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.35s ease;
+      border: 1px solid rgba(255,255,255,0.14);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 150px;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(222,228,255,0.82));
+      color: #080a10;
+      box-shadow: 0 10px 40px rgba(255,255,255,0.12);
+    }
+
+    .btn.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 45px rgba(255,255,255,0.18);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+
+    .btn.secondary:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .meta-box {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      min-width: 150px;
+      backdrop-filter: blur(16px);
+    }
+
+    .meta-box strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .meta-box span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .frame {
+      width: min(100%, 430px);
+      aspect-ratio: 0.82;
+      border-radius: 34px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)),
+        rgba(255,255,255,0.04);
+      backdrop-filter: blur(18px);
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 30px 90px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      transform: rotate(6deg);
+      animation: floatCard 6s ease-in-out infinite;
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(130deg, transparent 20%, rgba(255,255,255,0.16) 45%, transparent 60%);
+      transform: translateX(-120%);
+      animation: shine 3.8s ease-in-out infinite;
+    }
+
+    .frame-top {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+    }
+
+    .frame-top small {
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .frame-body {
+      height: calc(100% - 60px);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .mini-intro h3 {
+      font-size: 34px;
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .mini-intro p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .mini-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .mini-stack span {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 13px;
+      color: #e8ebf6;
+    }
+
+    .mini-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .panel {
+      padding: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+    }
+
+    .panel strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .panel span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .section-title {
+      margin-bottom: 28px;
+    }
+
+    .section-title span {
       display: inline-block;
-    }
-    .name.up { transform: translateY(0); }
-    .glitch { position: relative; display: inline-block; }
-    .glitch::before, .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-    }
-    .glitch::before {
-      color: #ff003c;
-      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-      transform: translateX(-2px);
-      animation: glitch1 3s infinite linear;
-    }
-    .glitch::after {
-      color: #00f0ff;
-      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-      transform: translateX(2px);
-      animation: glitch2 3s infinite linear;
-    }
-    .sub {
-      font-size: 11px;
-      letter-spacing: 6px;
-      color: #333;
+      font-size: 13px;
       text-transform: uppercase;
-      margin-top: 1.5rem;
-      opacity: 0;
-      transition: opacity 0.8s ease 0.3s;
+      letter-spacing: 0.22em;
+      color: #d9deeb;
+      margin-bottom: 12px;
     }
-    .sub.show { opacity: 1; }
-    .langs {
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: #222;
-      margin-top: 0.8rem;
-      opacity: 0;
-      transition: opacity 0.8s ease 0.6s;
+
+    .section-title h2 {
+      font-size: clamp(28px, 5vw, 50px);
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
     }
-    .langs.show { opacity: 1; }
-    .corner {
-      position: absolute;
-      font-size: 9px;
-      letter-spacing: 2px;
-      color: #1e1e1e;
+
+    .section-title p {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 760px;
+    }
+
+    .about-grid,
+    .project-grid,
+    .skills-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .about-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .project-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .skills-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 26px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      transition: transform 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .about-main h3,
+    .about-side h3,
+    .card h3,
+    .contact-card h3 {
+      font-size: 26px;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .about-main p,
+    .about-side p,
+    .card p,
+    .contact-card p {
+      color: var(--muted);
+      line-height: 1.85;
+      font-size: 15px;
+    }
+
+    .about-points {
+      margin-top: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .point {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #edf0f8;
+      font-size: 14px;
+    }
+
+    .project-card {
+      min-height: 270px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .project-number {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 1s ease 0.8s;
+      margin-bottom: 18px;
     }
-    .corner.show { opacity: 1; }
-    .tl { top: 2rem; left: 2.5rem; }
-    .tr { top: 2rem; right: 2.5rem; }
-    .bl { bottom: 2rem; left: 2.5rem; }
-    .br { bottom: 2rem; right: 2.5rem; }
-    @keyframes glitch1 {
-      0%, 90%, 100% { transform: translateX(-2px); opacity: 0; }
-      92% { transform: translateX(-4px); opacity: 1; }
-      94% { transform: translateX(2px); opacity: 1; }
-      96% { transform: translateX(-2px); opacity: 0; }
+
+    .project-card h3 {
+      margin-bottom: 14px;
     }
-    @keyframes glitch2 {
-      0%, 90%, 100% { transform: translateX(2px); opacity: 0; }
-      92% { transform: translateX(4px); opacity: 1; }
-      94% { transform: translateX(-2px); opacity: 1; }
-      96% { transform: translateX(2px); opacity: 0; }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .tags span {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: #e8ebf6;
+    }
+
+    .skill-card {
+      text-align: center;
+      padding: 28px 20px;
+    }
+
+    .skill-card strong {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .skill-card span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .contact-wrap {
+      padding-bottom: 120px;
+    }
+
+    .contact-card {
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 42px 28px;
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.26);
+    }
+
+    .contact-card .hero-actions {
+      justify-content: center;
+      margin-top: 28px;
+      margin-bottom: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 0 22px 40px;
+      color: rgba(255,255,255,0.42);
+      font-size: 14px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes travel {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+
+    @keyframes fadeBlink {
+      0%,100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes drift {
+      from { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-12px) translateX(10px); }
+      to { transform: translateY(0) translateX(0); }
+    }
+
+    @keyframes floatA {
+      0%,100% { transform: translate(0,0); }
+      50% { transform: translate(30px, 40px); }
+    }
+
+    @keyframes floatB {
+      0%,100% { transform: translate(0,0); }
+      50% { transform: translate(-20px, -30px); }
+    }
+
+    @keyframes pulseDot {
+      0%,100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+
+    @keyframes floatCard {
+      0%,100% { transform: rotate(6deg) translateY(0); }
+      50% { transform: rotate(4deg) translateY(-14px); }
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-130%); }
+      100% { transform: translateX(130%); }
+    }
+
+    @media (max-width: 1050px) {
+      .hero,
+      .about-grid,
+      .project-grid,
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 120px;
+      }
+
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .frame {
+        max-width: 520px;
+        width: 100%;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav {
+        padding: 16px;
+      }
+
+      .nav-links {
+        gap: 12px;
+      }
+
+      section {
+        padding: 95px 16px 50px;
+      }
+
+      .hero {
+        gap: 28px;
+      }
+
+      .hero h1 {
+        line-height: 1.02;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-meta {
+        gap: 12px;
+      }
+
+      .meta-box {
+        width: 100%;
+      }
+
+      .frame-body {
+        padding: 22px;
+      }
+
+      .mini-intro h3,
+      .about-main h3,
+      .about-side h3,
+      .card h3,
+      .contact-card h3 {
+        font-size: 22px;
+      }
+
+      .mini-panels {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-
-  <canvas id="c"></canvas>
-
-  <div id="loader">
-    <div class="pct" id="pct">0</div>
-    <div class="bar-wrap"><div class="bar-fill" id="bf"></div></div>
-    <div class="load-txt">Initializing</div>
+  <div class="loader" id="loader">
+    <div class="loader-ring"></div>
+    <div class="loader-name">Safal Portfolio</div>
+    <div class="loader-line"><span></span></div>
   </div>
 
-  <div id="main">
-    <div class="name-wrap">
-      <div class="name glitch" id="nm" data-text="Safal Sapkota">Safal Sapkota</div>
+  <div class="grid"></div>
+  <div class="grain"></div>
+  <div class="glow-orb"></div>
+
+  <header>
+    <div class="nav">
+      <div class="logo">Safal</div>
+      <nav class="nav-links">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
     </div>
-    <div class="sub" id="sub">Developer &nbsp;·&nbsp; Designer &nbsp;·&nbsp; Creator</div>
-    <div class="langs" id="langs">EN · 日本語 · नेपाली · हिंदी</div>
-  </div>
+  </header>
 
-  <span class="corner tl" id="c1">digitalthakali.com</span>
-  <span class="corner tr" id="c2">© 2026</span>
-  <span class="corner bl" id="c3">Based in Japan</span>
-  <span class="corner br" id="c4">Open to work</span>
+  <main>
+    <section class="hero">
+      <div class="hero-content reveal">
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Building ideas into reality
+        </div>
+        <h1>
+          I build digital products
+          <span>with vision, taste, and execution.</span>
+        </h1>
+        <p>
+          I'm Safal — a full-stack builder focused on creating clean, modern, and practical web experiences. I enjoy turning raw ideas into real products that look strong, feel premium, and actually work.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn primary">View My Work</a>
+          <a href="#contact" class="btn secondary">Let’s Connect</a>
+        </div>
+
+        <div class="hero-meta">
+          <div class="meta-box">
+            <strong>Full Stack</strong>
+            <span>Frontend, backend, UI flow, product thinking</span>
+          </div>
+          <div class="meta-box">
+            <strong>Japan Based</strong>
+            <span>Designing with global ideas and local execution</span>
+          </div>
+          <div class="meta-box">
+            <strong>Builder Mindset</strong>
+            <span>From concept to launch, step by step</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <div class="frame">
+          <div class="frame-top">
+            <div class="dots">
+              <span></span><span></span><span></span>
+            </div>
+            <small>portfolio preview</small>
+          </div>
+          <div class="frame-body">
+            <div>
+              <div class="mini-intro">
+                <h3>Clean ideas.<br>Strong execution.</h3>
+                <p>
+                  Modern UI, smooth motion, clear structure, and product-first thinking.
+                </p>
+              </div>
+              <div class="mini-stack">
+                <span>HTML</span>
+                <span>CSS</span>
+                <span>JavaScript</span>
+                <span>PHP</span>
+                <span>MySQL</span>
+              </div>
+            </div>
+            <div class="mini-panels">
+              <div class="panel">
+                <strong>01</strong>
+                <span>Strong opening animation and luxury-style first impression.</span>
+              </div>
+              <div class="panel">
+                <strong>02</strong>
+                <span>Smooth one-page flow that feels premium and easy to explore.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-title reveal">
+        <span>About</span>
+        <h2>More than just code.</h2>
+        <p>
+          I care about how a website feels the moment it opens. The first impression matters. A good portfolio should not just show work — it should show taste, confidence, and identity.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <div class="card about-main reveal">
+          <h3>Who I am</h3>
+          <p>
+            I'm a developer who likes building real projects, not just practice examples. I enjoy creating websites that feel sharp, modern, and memorable. My focus is on combining clean design, motion, and structure so that every section feels intentional.
+          </p>
+          <div class="about-points">
+            <div class="point">Strong interest in product building and web experiences</div>
+            <div class="point">Comfortable with both design direction and implementation</div>
+            <div class="point">Prefer practical, beautiful, and business-minded solutions</div>
+          </div>
+        </div>
+
+        <div class="card about-side reveal">
+          <h3>What I value</h3>
+          <p>
+            Good spacing. Strong typography. Smooth animation. Clear structure. And a website that feels premium from the first second. I like work that looks serious, feels modern, and leaves an impression.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-title reveal">
+        <span>Projects</span>
+        <h2>Selected work and ideas.</h2>
+        <p>
+          These are example project blocks for your one-page portfolio. You can replace them with your real projects later.
+        </p>
+      </div>
+
+      <div class="project-grid">
+        <div class="card project-card reveal">
+          <div>
+            <div class="project-number">Project 01</div>
+            <h3>Kareya Platform</h3>
+            <p>
+              A restaurant discovery and booking concept focused on a niche market, combining practical business thinking with real-world product design.
+            </p>
+          </div>
+          <div class="tags">
+            <span>Product</span>
+            <span>Booking</span>
+            <span>Database</span>
+          </div>
+        </div>
+
+        <div class="card project-card reveal">
+          <div>
+            <div class="project-number">Project 02</div>
+            <h3>Portfolio Experience</h3>
+            <p>
+              A cinematic one-page personal site with loader animation, glassmorphism panels, elegant typography, and smooth reveal effects.
+            </p>
+          </div>
+          <div class="tags">
+            <span>Animation</span>
+            <span>UI</span>
+            <span>Frontend</span>
+          </div>
+        </div>
+
+        <div class="card project-card reveal">
+          <div>
+            <div class="project-number">Project 03</div>
+            <h3>Future Product Idea</h3>
+            <p>
+              A concept space for the next digital product — something simple, useful, and built with strong design and clear execution.
+            </p>
+          </div>
+          <div class="tags">
+            <span>Concept</span>
+            <span>SaaS</span>
+            <span>Growth</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-title reveal">
+        <span>Skills</span>
+        <h2>Tools I work with.</h2>
+        <p>
+          A simple skill section that keeps the page clean while still showing what you can use to build modern web products.
+        </p>
+      </div>
+
+      <div class="skills-grid">
+        <div class="card skill-card reveal">
+          <strong>HTML</strong>
+          <span>Semantic structure and page layout</span>
+        </div>
+        <div class="card skill-card reveal">
+          <strong>CSS</strong>
+          <span>Responsive UI, animation, and styling</span>
+        </div>
+        <div class="card skill-card reveal">
+          <strong>JavaScript</strong>
+          <span>Interaction, motion, and frontend logic</span>
+        </div>
+        <div class="card skill-card reveal">
+          <strong>PHP / MySQL</strong>
+          <span>Backend flow, database, and dynamic pages</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-wrap">
+      <div class="contact-card reveal">
+        <h3>Let’s build something strong.</h3>
+        <p>
+          If you want, you can place your email, GitHub, LinkedIn, or portfolio link here. This section is made simple so it feels clean and premium.
+        </p>
+        <div class="hero-actions">
+          <a href="mailto:yourmail@example.com" class="btn primary">Email Me</a>
+          <a href="#" class="btn secondary">GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Safal. Designed with motion, clarity, and ambition.
+  </footer>
 
   <script>
-    const canvas = document.getElementById('c');
-    const ctx = canvas.getContext('2d');
+    const loader = document.getElementById('loader');
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    const dots = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.2 + 0.3,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: (Math.random() - 0.5) * 0.3,
-      o: Math.random() * 0.4 + 0.05
-    }));
-
-    function drawDots() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      dots.forEach(d => {
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${d.o})`;
-        ctx.fill();
-        d.x += d.dx;
-        d.y += d.dy;
-        if (d.x < 0 || d.x > canvas.width) d.dx *= -1;
-        if (d.y < 0 || d.y > canvas.height) d.dy *= -1;
-      });
-      requestAnimationFrame(drawDots);
-    }
-    drawDots();
-
-    let cur = 0;
-    const timer = setInterval(() => {
-      cur += 1.8 + (Math.random() * 1.5);
-      if (cur >= 100) {
-        cur = 100;
-        clearInterval(timer);
-        setTimeout(reveal, 400);
-      }
-      document.getElementById('pct').textContent = Math.floor(cur);
-      document.getElementById('bf').style.width = cur + '%';
-    }, 40);
-
-    function reveal() {
-      document.getElementById('loader').classList.add('hide');
+    window.addEventListener('load', () => {
       setTimeout(() => {
-        document.getElementById('main').classList.add('show');
-        document.getElementById('nm').classList.add('up');
-        setTimeout(() => document.getElementById('sub').classList.add('show'), 300);
-        setTimeout(() => document.getElementById('langs').classList.add('show'), 600);
-        ['c1','c2','c3','c4'].forEach(id => document.getElementById(id).classList.add('show'));
-      }, 500);
-    }
+        loader.classList.add('hidden');
+        document.body.classList.add('loaded');
+      }, 1700);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
   </script>
 </body>
 </html>
