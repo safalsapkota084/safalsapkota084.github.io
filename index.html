@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Safal Sapkota</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* LOADER */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    #loader.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .percent {
+      font-size: clamp(4rem, 12vw, 9rem);
+      font-weight: 200;
+      color: #e8e8e8;
+      letter-spacing: -4px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .loading-bar-wrap {
+      width: 200px;
+      height: 0.5px;
+      background: #1e1e1e;
+      margin-top: 2.5rem;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: #e8e8e8;
+      transition: width 0.05s linear;
+    }
+
+    .loading-label {
+      margin-top: 1.2rem;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #333;
+      text-transform: uppercase;
+    }
+
+    /* MAIN CONTENT */
+    #main {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #main.show {
+      animation: fadeInMain 1.2s ease forwards;
+      pointer-events: all;
+    }
+
+    .hero-name {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 200;
+      color: #e8e8e8;
+      letter-spacing: -3px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-name span {
+      display: inline-block;
+      transform: translateY(100%);
+      animation: none;
+    }
+
+    .hero-name span.animate {
+      animation: slideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hero-name span:nth-child(2).animate {
+      animation-delay: 0.08s;
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 12px;
+      letter-spacing: 5px;
+      color: #333;
+      text-transform: uppercase;
+      text-align: center;
+      opacity: 0;
+      animation: none;
+    }
+
+    .hero-sub.animate {
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero-langs {
+      margin-top: 1rem;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #222;
+      text-align: center;
+      opacity: 0;
+      animation: none;
+    }
+
+    .hero-langs.animate {
+      animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .line {
+      width: 0.5px;
+      height: 60px;
+      background: #1e1e1e;
+      margin-top: 3rem;
+      opacity: 0;
+      animation: none;
+    }
+
+    .line.animate {
+      animation: growLine 0.8s ease forwards 1s;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes growLine {
+      from { opacity: 0; transform: scaleY(0); transform-origin: top; }
+      to   { opacity: 1; transform: scaleY(1); transform-origin: top; }
+    }
+
+    @keyframes fadeInMain {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* corner info */
+    .corner {
+      position: fixed;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #222;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 1s ease 0.5s;
+    }
+
+    .corner.show { opacity: 1; }
+    .corner.tl { top: 2rem; left: 2.5rem; }
+    .corner.tr { top: 2rem; right: 2.5rem; }
+    .corner.bl { bottom: 2rem; left: 2.5rem; }
+    .corner.br { bottom: 2rem; right: 2.5rem; }
+  </style>
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="percent" id="percent">0</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="bar"></div>
+    </div>
+    <div class="loading-label">Loading</div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div class="hero-name">
+      <span>Safal&nbsp;</span><span>Sapkota</span>
+    </div>
+    <div class="hero-sub">Developer &nbsp;·&nbsp; Designer &nbsp;·&nbsp; Creator</div>
+    <div class="hero-langs">EN &nbsp;·&nbsp; 日本語 &nbsp;·&nbsp; नेपाली &nbsp;·&nbsp; हिंदी</div>
+    <div class="line"></div>
+  </div>
+
+  <!-- Corners -->
+  <div class="corner tl" id="c1">digitalthakali.com</div>
+  <div class="corner tr" id="c2">© 2026</div>
+  <div class="corner bl" id="c3">Based in Japan</div>
+  <div class="corner br" id="c4">Open to work</div>
+
+  <script>
+    const percentEl = document.getElementById('percent');
+    const bar = document.getElementById('bar');
+    const loader = document.getElementById('loader');
+    const main = document.getElementById('main');
+    const corners = document.querySelectorAll('.corner');
+
+    let current = 0;
+    const target = 100;
+    const duration = 2200;
+    const interval = 30;
+    const steps = duration / interval;
+    const increment = target / steps;
+
+    const timer = setInterval(() => {
+      current += increment + (Math.random() * increment * 0.5);
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+        setTimeout(reveal, 300);
+      }
+      percentEl.textContent = Math.floor(current);
+      bar.style.width = current + '%';
+    }, interval);
+
+    function reveal() {
+      loader.classList.add('hide');
+
+      setTimeout(() => {
+        main.classList.add('show');
+
+        document.querySelectorAll('.hero-name span').forEach(s => s.classList.add('animate'));
+        document.querySelector('.hero-sub').classList.add('animate');
+        document.querySelector('.hero-langs').classList.add('animate');
+        document.querySelector('.line').classList.add('animate');
+
+        corners.forEach(c => c.classList.add('show'));
+      }, 400);
+    }
+  </script>
+</body>
+</html>
