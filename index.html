@@ -6,69 +6,60 @@
   <title>Safal Sapkota</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      background: #0a0a0a;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #080808;
+      font-family: 'Helvetica Neue', sans-serif;
       overflow: hidden;
       height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
     }
-
-    #loader {
-      position: fixed;
+    canvas {
+      position: absolute;
       inset: 0;
-      background: #0a0a0a;
+      z-index: 0;
+    }
+    #loader {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 100;
-      transition: opacity 0.8s ease;
+      transition: opacity 1s ease;
     }
-
-    #loader.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .percent {
-      font-size: clamp(4rem, 12vw, 9rem);
-      font-weight: 200;
-      color: #e8e8e8;
-      letter-spacing: -4px;
+    #loader.hide { opacity: 0; pointer-events: none; }
+    .pct {
+      font-size: clamp(5rem, 15vw, 10rem);
+      font-weight: 100;
+      color: #fff;
+      letter-spacing: -6px;
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
-
-    .loading-bar-wrap {
-      width: 200px;
-      height: 0.5px;
-      background: #1e1e1e;
-      margin-top: 2.5rem;
-      overflow: hidden;
+    .bar-wrap {
+      width: 180px;
+      height: 1px;
+      background: #1a1a1a;
+      margin-top: 2rem;
     }
-
-    .loading-bar {
-      height: 100%;
+    .bar-fill {
+      height: 1px;
       width: 0%;
-      background: #e8e8e8;
-      transition: width 0.05s linear;
+      background: #fff;
+      transition: width 0.04s linear;
     }
-
-    .loading-label {
-      margin-top: 1.2rem;
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: #333;
+    .load-txt {
+      margin-top: 1rem;
+      font-size: 10px;
+      letter-spacing: 5px;
+      color: #2a2a2a;
       text-transform: uppercase;
     }
-
     #main {
-      position: fixed;
+      position: absolute;
       inset: 0;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -76,168 +67,164 @@
       opacity: 0;
       pointer-events: none;
     }
-
-    #main.show {
-      animation: fadeInMain 1.2s ease forwards;
-      pointer-events: all;
-    }
-
-    .hero-name {
-      font-size: clamp(3rem, 8vw, 7rem);
-      font-weight: 200;
-      color: #e8e8e8;
+    #main.show { opacity: 1; pointer-events: all; }
+    .name-wrap { overflow: hidden; line-height: 1; }
+    .name {
+      font-size: clamp(2.5rem, 8vw, 7rem);
+      font-weight: 100;
+      color: #fff;
       letter-spacing: -3px;
-      text-align: center;
-      overflow: hidden;
-    }
-
-    .hero-name span {
+      transform: translateY(110%);
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
       display: inline-block;
-      transform: translateY(100%);
     }
-
-    .hero-name span.animate {
-      animation: slideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .name.up { transform: translateY(0); }
+    .glitch { position: relative; display: inline-block; }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
     }
-
-    .hero-name span:nth-child(2).animate {
-      animation-delay: 0.08s;
+    .glitch::before {
+      color: #ff003c;
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      transform: translateX(-2px);
+      animation: glitch1 3s infinite linear;
     }
-
-    .hero-sub {
-      margin-top: 1.5rem;
-      font-size: 12px;
-      letter-spacing: 5px;
+    .glitch::after {
+      color: #00f0ff;
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+      transform: translateX(2px);
+      animation: glitch2 3s infinite linear;
+    }
+    .sub {
+      font-size: 11px;
+      letter-spacing: 6px;
       color: #333;
       text-transform: uppercase;
-      text-align: center;
+      margin-top: 1.5rem;
       opacity: 0;
+      transition: opacity 0.8s ease 0.3s;
     }
-
-    .hero-sub.animate {
-      animation: fadeUp 0.8s ease forwards 0.4s;
-    }
-
-    .hero-langs {
-      margin-top: 1rem;
-      font-size: 11px;
+    .sub.show { opacity: 1; }
+    .langs {
+      font-size: 10px;
       letter-spacing: 3px;
       color: #222;
-      text-align: center;
+      margin-top: 0.8rem;
       opacity: 0;
+      transition: opacity 0.8s ease 0.6s;
     }
-
-    .hero-langs.animate {
-      animation: fadeUp 0.8s ease forwards 0.7s;
-    }
-
-    .line {
-      width: 0.5px;
-      height: 60px;
-      background: #1e1e1e;
-      margin-top: 3rem;
-      opacity: 0;
-    }
-
-    .line.animate {
-      animation: growLine 0.8s ease forwards 1s;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to   { transform: translateY(0); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes growLine {
-      from { opacity: 0; transform: scaleY(0); transform-origin: top; }
-      to   { opacity: 1; transform: scaleY(1); transform-origin: top; }
-    }
-
-    @keyframes fadeInMain {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
+    .langs.show { opacity: 1; }
     .corner {
-      position: fixed;
-      font-size: 10px;
+      position: absolute;
+      font-size: 9px;
       letter-spacing: 2px;
-      color: #222;
+      color: #1e1e1e;
       text-transform: uppercase;
       opacity: 0;
-      transition: opacity 1s ease 0.5s;
+      transition: opacity 1s ease 0.8s;
     }
-
     .corner.show { opacity: 1; }
-    .corner.tl { top: 2rem; left: 2.5rem; }
-    .corner.tr { top: 2rem; right: 2.5rem; }
-    .corner.bl { bottom: 2rem; left: 2.5rem; }
-    .corner.br { bottom: 2rem; right: 2.5rem; }
+    .tl { top: 2rem; left: 2.5rem; }
+    .tr { top: 2rem; right: 2.5rem; }
+    .bl { bottom: 2rem; left: 2.5rem; }
+    .br { bottom: 2rem; right: 2.5rem; }
+    @keyframes glitch1 {
+      0%, 90%, 100% { transform: translateX(-2px); opacity: 0; }
+      92% { transform: translateX(-4px); opacity: 1; }
+      94% { transform: translateX(2px); opacity: 1; }
+      96% { transform: translateX(-2px); opacity: 0; }
+    }
+    @keyframes glitch2 {
+      0%, 90%, 100% { transform: translateX(2px); opacity: 0; }
+      92% { transform: translateX(4px); opacity: 1; }
+      94% { transform: translateX(-2px); opacity: 1; }
+      96% { transform: translateX(2px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
 
+  <canvas id="c"></canvas>
+
   <div id="loader">
-    <div class="percent" id="percent">0</div>
-    <div class="loading-bar-wrap">
-      <div class="loading-bar" id="bar"></div>
-    </div>
-    <div class="loading-label">Loading</div>
+    <div class="pct" id="pct">0</div>
+    <div class="bar-wrap"><div class="bar-fill" id="bf"></div></div>
+    <div class="load-txt">Initializing</div>
   </div>
 
   <div id="main">
-    <div class="hero-name">
-      <span>Saphal&nbsp;</span><span>Sapkota</span>
+    <div class="name-wrap">
+      <div class="name glitch" id="nm" data-text="Safal Sapkota">Safal Sapkota</div>
     </div>
-    <div class="hero-sub">Developer &nbsp;·&nbsp; Designer &nbsp;·&nbsp; Creator</div>
-    <div class="hero-langs">EN &nbsp;·&nbsp; 日本語 &nbsp;·&nbsp; नेपाली &nbsp;·&nbsp; हिंदी</div>
-    <div class="line"></div>
+    <div class="sub" id="sub">Developer &nbsp;·&nbsp; Designer &nbsp;·&nbsp; Creator</div>
+    <div class="langs" id="langs">EN · 日本語 · नेपाली · हिंदी</div>
   </div>
 
-  <div class="corner tl">digitalthakali.com</div>
-  <div class="corner tr">© 2026</div>
-  <div class="corner bl">Based in Japan</div>
-  <div class="corner br">Open to work</div>
+  <span class="corner tl" id="c1">digitalthakali.com</span>
+  <span class="corner tr" id="c2">© 2026</span>
+  <span class="corner bl" id="c3">Based in Japan</span>
+  <span class="corner br" id="c4">Open to work</span>
 
   <script>
-    const percentEl = document.getElementById('percent');
-    const bar = document.getElementById('bar');
-    const loader = document.getElementById('loader');
-    const main = document.getElementById('main');
-    const corners = document.querySelectorAll('.corner');
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
 
-    let current = 0;
-    const duration = 2200;
-    const interval = 30;
-    const steps = duration / interval;
-    const increment = 100 / steps;
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
+    const dots = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.3,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      o: Math.random() * 0.4 + 0.05
+    }));
+
+    function drawDots() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      dots.forEach(d => {
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${d.o})`;
+        ctx.fill();
+        d.x += d.dx;
+        d.y += d.dy;
+        if (d.x < 0 || d.x > canvas.width) d.dx *= -1;
+        if (d.y < 0 || d.y > canvas.height) d.dy *= -1;
+      });
+      requestAnimationFrame(drawDots);
+    }
+    drawDots();
+
+    let cur = 0;
     const timer = setInterval(() => {
-      current += increment + (Math.random() * increment * 0.5);
-      if (current >= 100) {
-        current = 100;
+      cur += 1.8 + (Math.random() * 1.5);
+      if (cur >= 100) {
+        cur = 100;
         clearInterval(timer);
-        setTimeout(reveal, 300);
+        setTimeout(reveal, 400);
       }
-      percentEl.textContent = Math.floor(current);
-      bar.style.width = current + '%';
-    }, interval);
+      document.getElementById('pct').textContent = Math.floor(cur);
+      document.getElementById('bf').style.width = cur + '%';
+    }, 40);
 
     function reveal() {
-      loader.classList.add('hide');
+      document.getElementById('loader').classList.add('hide');
       setTimeout(() => {
-        main.classList.add('show');
-        document.querySelectorAll('.hero-name span').forEach(s => s.classList.add('animate'));
-        document.querySelector('.hero-sub').classList.add('animate');
-        document.querySelector('.hero-langs').classList.add('animate');
-        document.querySelector('.line').classList.add('animate');
-        corners.forEach(c => c.classList.add('show'));
-      }, 400);
+        document.getElementById('main').classList.add('show');
+        document.getElementById('nm').classList.add('up');
+        setTimeout(() => document.getElementById('sub').classList.add('show'), 300);
+        setTimeout(() => document.getElementById('langs').classList.add('show'), 600);
+        ['c1','c2','c3','c4'].forEach(id => document.getElementById(id).classList.add('show'));
+      }, 500);
     }
   </script>
 </body>
